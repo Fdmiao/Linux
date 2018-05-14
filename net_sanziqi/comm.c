@@ -2,7 +2,7 @@
 
 void Init(char arr[ROW][COL], int x, int y)//数组的初始化函数定义
 {
-    memset(arr, ' ', ROW*COL*sizeof(arr[0][0]));
+    memset(arr, ' ', x*y*sizeof(arr[0][0]));
 }
 
 void menu()//菜单函数定义
@@ -15,10 +15,10 @@ void menu()//菜单函数定义
 void print(char arr[ROW][COL], int x, int y)//打印棋盘函数定义
 {
     int i = 0;
-    for (i = 0; i < ROW; i++)
+    for (i = 0; i < x; i++)
     {
         printf(" %c  |  %c  |  %c \n", arr[i][0], arr[i][1], arr[i][2]);
-        if (i < ROW - 1)
+        if (i < x - 1)
         {
             printf("---- ---- ----\n");
         }
@@ -71,9 +71,9 @@ int  iswin(char arr[ROW][COL], int x, int y)
             return arr[0][i];//竖向赢
         }
     }
-    for (i = 0; i < ROW; i++)
+    for (i = 0; i < x; i++)
     {
-        for (j = 0; j < COL; j++)
+        for (j = 0; j < y; j++)
         {
             if (arr[i][j] == ' ')
             {
@@ -95,7 +95,7 @@ void move(char arr[ROW][COL],int x,int y,location* loc,char flag)
     while(!count)
     {
         scanf("%d%d",&(loc->x),&(loc->y));//服务器走
-        if (loc->x >= 1 && loc->x <= ROW && loc->y >= 1 && loc->y <= COL)
+        if (loc->x >= 1 && loc->x <= x && loc->y >= 1 && loc->y <= y)
         {
             if (arr[loc->x - 1][loc->y - 1] == ' ')
             {

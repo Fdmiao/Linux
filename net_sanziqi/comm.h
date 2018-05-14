@@ -1,8 +1,14 @@
 #pragma once
 
 #include<stdio.h>
+#include<sys/types.h>
+#include<sys/socket.h>
 #include<stdlib.h>
+#include<netinet/in.h>
+#include<arpa/inet.h>
+#include<unistd.h>
 #include<string.h>
+#include<sys/wait.h>
 #include<time.h>
 
 
@@ -19,7 +25,7 @@ typedef struct
 //客户端发送的进入游戏或退出游戏的信息
 typedef struct Res
 {
-    int res;
+    int res;//1表示开始游戏，0表示退出游戏
 }Response;
 
 void menu();//打印菜单

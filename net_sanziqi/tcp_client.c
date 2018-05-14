@@ -1,13 +1,4 @@
 
-#include<stdio.h>
-#include<sys/types.h>
-#include<sys/socket.h>
-#include<stdlib.h>
-#include<netinet/in.h>
-#include<arpa/inet.h>
-#include<unistd.h>
-#include<string.h>
-
 #include"comm.h"
 
 void client_work(int client_sock)

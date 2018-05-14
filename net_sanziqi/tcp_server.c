@@ -1,13 +1,3 @@
-#include<stdio.h>
-#include<sys/types.h>
-#include<sys/socket.h>
-#include<stdlib.h>
-#include<netinet/in.h>
-#include<arpa/inet.h>
-#include<unistd.h>
-#include<string.h>
-#include<sys/wait.h>
-
 #include "comm.h"
 
 int server_sock(char* ip,int port)
@@ -40,50 +30,6 @@ int server_sock(char* ip,int port)
     return sock;//得到监听套接字
 }
 
-////移动函数
-//void move(char arr[ROW][COL],int x,int y,location* loc,char flag)
-//{
-//    int count = 0;
-//    while(!count)
-//    {
-//        scanf("%d%d",&(loc->x),&(loc->y));//服务器走
-//        if (loc->x >= 1 && loc->x <= ROW && loc->y >= 1 && loc->y <= COL)
-//        {
-//            if (arr[loc->x - 1][loc->y - 1] == ' ')
-//            {
-//                arr[loc->x - 1][loc->y - 1] = flag;
-//                count++;
-//            }
-//            else
-//            {
-//                printf("该位置已满！请重新选择：");
-//            }
-//        }
-//        else
-//        {
-//            printf("位置错误！请重新选择：");
-//        }
-//    }
-//}
-//int who_win(int ret)//判断是谁赢
-//{
-//    if (ret == 'Y')
-//    {
-//        printf("玩家1赢\n");
-//        return 1;
-//    }
-//    else if (ret == '*')
-//    {
-//        printf("玩家2赢\n");
-//        return 1;
-//    }
-//    else if (ret == 0)
-//    {
-//        printf("平局\n");
-//        return 1;
-//    }
-//    return 0;
-//}
 void server_work(int client_sock,char* ip,int port)
 {
     int ret = 0;
