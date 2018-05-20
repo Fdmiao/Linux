@@ -34,14 +34,14 @@ int main(int argc,char* argv[])
 //    char buf[128];
     while(1)
     {
-        Request req;
-        Response res;
+        Request req;//定义结构体变量用于存储两个加数
+        Response res;//定义结构体变量用于接受来自服务器端计算的结果
         printf("please enter:");
         fflush(stdout);
-        scanf("%d%d",&req.x,&req.y);
-        write(sock,&req,sizeof(req));
-        read(sock,&res,sizeof(res));
-        printf("%d + %d = %d\n",req.x,req.y,res.sum);
+        scanf("%d%d",&req.x,&req.y);//从键盘读取两个加数
+        write(sock,&req,sizeof(req));//将两个加数发送给服务器端
+        read(sock,&res,sizeof(res));//接收来自服务器端的结果
+        printf("%d + %d = %d\n",req.x,req.y,res.sum);//输出结果
  //       buf[0] = 0;
  //       printf("please enter#");
  //       fflush(stdout);
