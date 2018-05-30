@@ -4,6 +4,7 @@
 #include<sys/types.h>
 #include<sys/stat.h>
 #include<fcntl.h>
+#include<string.h>
 
 //将标准输出重定向到文件中
 int main()
@@ -41,7 +42,6 @@ int main()
 //    //就需要先关闭标准输出，再关闭新的文件描述符，在打开新的文件描述符，这样过于麻烦
 //    //而且在新文件第一次创建之后就已经存在了，如果再次打开的话会打开失败
 //    int fd = open("log.txt",O_CREAT|O_RDWR);
-//    
 //    close(1);
 //    close(fd);
 //    int fd1 = open("log.txt",O_CREAT|O_RDWR);
@@ -80,12 +80,23 @@ int main()
         return 2;
     }
     close(fd);//因为文件已经重定向了，所以旧的文件描述符也就没有用了
+    //如果该文件描述符不关闭，也可对该文件进行读写
     printf("new_fd:%d\n",new_fd);
+    write(fd,"hello",strlen("hello"));
     
     int i = 10;
     while(i--)
     {
-        printf("hello world\n");
+        //printf重定向到普通文件，普通文件是全缓冲，
+        //即printf输出的数据会先保存在stdout结构体的缓冲区中
+        //等待程序结束才会刷新缓冲区，输出到文件中
+        //但是在本程序中，因为在程序结束之前已经close了文件描述符
+        //即在程序结束后找不到文件了，所以在close之前将缓冲区中的内容刷新到文件中
+        //所以要调用fflush来刷新缓冲区
+        //
+        //如果在程序结束之前没有close文件，也可以不用fflush刷新，程序结束后会自动刷新到缓冲区中
+        //但是为防止其他特殊情况，还是刷新一下比较好
+        printf("hello world\n");//printf重定向到普通文件，
         fflush(stdout);
     }
     close(new_fd);
