@@ -223,8 +223,11 @@ int main(int argc,char* argv[])
         //同时得到文件描述集中的最大文件描述符
         int max = AddFd(arr,MAXSIZE,&readfds);
 
+        //设定时间
+        struct timeval timeout = {5,0};
+
         //开始调用select等待所关心的文件描述符集
-        int ret = select(max + 1,&readfds,NULL,NULL,NULL);
+        int ret = select(max + 1,&readfds,NULL,NULL,&timeout);
         
         //此时关心的文件描述符集中至少有一个文件描述符读就绪
         if(ret > 0)
