@@ -12,9 +12,11 @@
 #include<ctype.h>
 #include<sys/sendfile.h>
 #include<sys/wait.h>
+#include<signal.h>
 
 #define MAX 1024
 #define HOME_PAGE "index.html"
+#define PAGE_404 "404.html"
 
 //获得监听套接字
 int service(int port)
@@ -168,7 +170,7 @@ int exe_cgi(int sock,char* path,char* method,char* query_string)
                 content_length = atoi(line + 16);
             }
         }while(strcmp(line,"\n") != 0);
-        //如果没有读到任何内容
+        //如果没有读到任何内容,此时对应的是请求报头中没有Content-Length的字段
         if(content_length == -1)
         {
             return 404;
@@ -302,10 +304,50 @@ int exe_cgi(int sock,char* path,char* method,char* query_string)
     return 200;
 }
 
-void echo_err(int errcode)
+void show_404(int sock)
 {
+    head_clear(sock);
+    char path[1024];
+    sprintf(path,"wwwroot/404.html");
+    int fd = open(path,O_RDONLY);
+    char line[MAX];//存放响应首行，响应报头
 
+    struct stat st;
+    stat(path,&st);
+
+    //发送响应首部
+    sprintf(line,"HTTP/1.0 200 OK\r\n");
+    send(sock,line,strlen(line),0);
+
+    //发送响应报头
+    sprintf(line,"Content-Type:text/html\r\n");
+    send(sock,line,strlen(line),0);
+
+    //发送空行
+    sprintf(line,"\r\n");
+    send(sock,line,strlen(line),0);
+
+    //发送响应正文
+    //直接从内核发送，效率高
+    sendfile(sock,fd,NULL,st.st_size);
+
+    close(fd);
 }
+
+void echo_err(int sock,int code)
+{
+	switch(code)
+	{
+		case 404:
+            show_404(sock);
+			break;
+		case 501:
+			break;
+		default:
+			break;
+	}
+}
+
 void* handler_request(void* arg)
 {
     int sock = (int)arg;
@@ -444,7 +486,7 @@ void* handler_request(void* arg)
     end:
     if(errcode != 200)
     {
-        echo_err(errcode);
+        echo_err(sock,errcode);
     }
     //测试获取请求报头
 //    do
@@ -465,6 +507,7 @@ int main(int argc,char* argv[])
     }
     //获得监听套接字
     int listen_sock = service(atoi(argv[1]));
+    signal(SIGPIPE,SIG_IGN);
     printf("bind and listen success...\n");
 
     //开始接受新链接
