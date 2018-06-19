@@ -13,10 +13,10 @@
 #define MAXSIZE 1024
 typedef struct epdata
 {
-    int fd;
-    int cap;//最大容量
-    int size;//当前容量
-    char buf[0];//柔性数组
+    int fd;//文件描述符
+    int cap;//缓冲区buf的最大容量
+    int size;//缓冲区buf的当前容量
+    char buf[0];//柔性数组，充当缓冲区
 }epdata_t,*epdata_p;
 
 
@@ -94,7 +94,7 @@ void accept_server(int epfd,int listen_socket)
         int connfd = accept(listen_socket,(struct sockaddr*)&client,&len);
         if(connfd < 0)
         {
-            printf("accept error\n");
+            //printf("accept error\n");
             break;
         }
         SetNoBlock(connfd);
@@ -103,7 +103,6 @@ void accept_server(int epfd,int listen_socket)
         con_ev.events = EPOLLIN | EPOLLET;
         //修改的地方
         con_ev.data.ptr = buyEpdata(connfd,1024*5);
-        //con_ev.data.fd = connfd;
         epoll_ctl(epfd,EPOLL_CTL_ADD,connfd,&con_ev);
     }
     return;
@@ -115,6 +114,7 @@ int NoBlockRead(int fd,char* buf,int size)
     while(1)
     {
         int cur_size = read(fd,buf + total,size - total);
+//        int cur_size = read(fd,buf + total,20);
         if(cur_size > 0)
         {
             total = total + cur_size;
@@ -127,19 +127,16 @@ int NoBlockRead(int fd,char* buf,int size)
     return total;
 }
 //此时为普通文件描述符读就绪
-//void read_server(int epfd,int fd)
 //需要修改的地方
 void read_server(int epfd,char* ptr)
 {
- //   char buf[1024] = {0};
  //   注意修改之后的值
     char* buf = ((epdata_p)ptr)->buf;
     int size = ((epdata_p)ptr)->size;
     int cap = ((epdata_p)ptr)->cap;
     int fd = ((epdata_p)ptr)->fd;
-    //size += NoBlockRead(fd,buf,cap);
     ssize_t s = NoBlockRead(fd,buf + size,cap - size - 1);
-    //((epdata_p)ptr)->size += s;
+    //ssize_t s = NoBlockRead(fd,buf,cap);
     if(s > 0)
     {
         ((epdata_p)ptr)->size += s;
@@ -194,7 +191,6 @@ void server(int epfd,struct epoll_event* wait_ev,int size,int listen_socket)
                 //此时为普通文件描述符读就绪
                 //需要修改的地方
                 read_server(epfd,buf);
-                //read_server(epfd,wait_ev[index].data.fd);
             }
         }
         //可能有非读事件就绪，这里只处理读事件，所以当其他时间就绪时，不进行处理
@@ -218,9 +214,13 @@ int main(int argc,char* argv[])
         return 1;
     }
 
+
     //获得监听套接字
     int listen_fd = listen_server(atoi(argv[1]));
     printf("bind and listen success,....\n");
+
+    //将监听文件描述符设置为非阻塞
+    SetNoBlock(listen_fd);
 
     //创建epoll模型
     int epfd = epoll_create(50);
@@ -230,15 +230,12 @@ int main(int argc,char* argv[])
         return 5;
     }
 
-    //将监听文件描述符设置为非阻塞
-    SetNoBlock(listen_fd);
 
     //将监听套接字注册进epoll模型中
     struct epoll_event lis_ev;
     lis_ev.events = EPOLLIN | EPOLLET;//添加读事件
     //修改的地方
     lis_ev.data.ptr = buyEpdata(listen_fd,1);
-    //lis_ev.data.fd = listen_fd;
     int lis_ret = epoll_ctl(epfd,EPOLL_CTL_ADD,listen_fd,&lis_ev);
     if(lis_ret < 0)
     {

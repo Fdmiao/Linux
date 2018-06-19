@@ -59,35 +59,43 @@ void SetNoBlock(int fd)
     fcntl(fd,F_SETFL,flag|O_NONBLOCK);
     return;
 }
-//处理接受连接事件
+//循环处理接受连接事件
 void accept_server(int epfd,int listen_socket)
 {
-    struct sockaddr_in client;
-    socklen_t len = sizeof(client);
-    int connfd = accept(listen_socket,(struct sockaddr*)&client,&len);
-    if(connfd < 0)
+    while(1)
     {
-        printf("accept error\n");
-        return;
+        struct sockaddr_in client;
+        socklen_t len = sizeof(client);
+        int connfd = accept(listen_socket,(struct sockaddr*)&client,&len);
+        if(connfd < 0)
+        {
+            //printf("accept error\n");
+            return;
+        }
+        SetNoBlock(connfd);
+        printf("get a new connect:[%s][%d]\n",inet_ntoa(client.sin_addr),ntohs(client.sin_port));
+        struct epoll_event con_ev;
+        con_ev.events = EPOLLIN | EPOLLET;
+        con_ev.data.fd = connfd;
+        epoll_ctl(epfd,EPOLL_CTL_ADD,connfd,&con_ev);
     }
-    SetNoBlock(connfd);
-    printf("get a new connect:[%s][%d]\n",inet_ntoa(client.sin_addr),ntohs(client.sin_port));
-    struct epoll_event con_ev;
-    con_ev.events = EPOLLIN | EPOLLET;
-    con_ev.data.fd = connfd;
-    epoll_ctl(epfd,EPOLL_CTL_ADD,connfd,&con_ev);
 }
 
+//buf为接受缓冲区，size为缓冲区的总大小
 int NoBlockRead(int fd,char* buf,int size)
 {
+    //total为总共读到的大小
     int total = 0;
     while(1)
     {
+        //cur_size为一次读到的大小
         int cur_size = read(fd,buf + total,size - total);
         if(cur_size > 0)
         {
             total = total + cur_size;
         }
+        //cur_size小于0：read出错返回或者非阻塞文件描述符没有内容可以读
+        //cur_size等于0：对端关闭文件描述符
         else if(total >= size || errno == EAGAIN)
         {
             break;
@@ -178,31 +186,23 @@ int main(int argc,char* argv[])
         perror("ctl listen_fd error");
         return 6;
     }
-//    printf("jdbj\n");
     //进行循环式的等待
     while(1)
     {
-  //      printf("jjjjj\n");
-        //定义一个数，接收就绪的事件
+        //定义一个数组，接收就绪的事件
         struct epoll_event event_list[MAXSIZE];
-    //    printf("hahah\n");
         int ret = epoll_wait(epfd,event_list,sizeof(event_list)/sizeof(event_list[0]),-1);
-      //  printf("%d\n",ret);
-      //  printf("hahah\n");
         if(ret < 0)
         {
-        //    printf("heheh1\n");
             perror("wait error");
             continue;
         }
         else if(ret == 0)
         {
-         //   printf("heheh2\n");
             printf("timeout\n");
         }
         else
         {
-         //   printf("heheh\n");
             server(epfd,event_list,ret,listen_fd);
         }
     }

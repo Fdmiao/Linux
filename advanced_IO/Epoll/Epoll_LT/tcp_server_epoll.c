@@ -45,7 +45,6 @@ int listen_server(int port)
         return 4;
     }
     return sock;
-
 }
 
 //处理接受连接事件
@@ -139,9 +138,6 @@ int main(int argc,char* argv[])
 
     struct epoll_event lis_ev;
     lis_ev.events = EPOLLIN;//只关注读事件
-    //申请一片空间存放接收到的内容
-    //buy_buf* tmp = Buy_Buffer(listen_socket);
-    //lis_ev.data.ptr = tmp;
     lis_ev.data.fd = listen_socket;
 
     //将监听套接字注册进epoll模型
