@@ -122,6 +122,8 @@ void read_server(int epfd,int fd)
     else
     {
         printf("read error\n");
+        epoll_ctl(epfd,EPOLL_CTL_DEL,fd,NULL);
+        close(fd);
     }
     return;
 }
