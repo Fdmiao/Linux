@@ -18,7 +18,7 @@ insertData:insertData.c
 	gcc -o $@ -g $^ $(INCLUDE) $(LIB) $(LIB_NAME)
 
 selectData:selectData.c
-	gcc -o $@ -g $^
+	gcc -o $@ -g $^ $(INCLUDE) $(LIB) $(LIB_NAME)
 
 .PHONY:clean
 
