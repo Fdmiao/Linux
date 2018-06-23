@@ -16,9 +16,10 @@ cgi:
 
 output:
 	mkdir -p output/wwwroot/cgi
+	mkdir -p output/lib/lib
 	cp httpd output
 	cp start.sh output
-	cp -rf lib output
+	cp -rf lib/lib output/lib
 	cp -rf wwwroot/*.html output/wwwroot
 	cp -rf wwwroot/img/ output/wwwroot
 	cp -rf wwwroot/cgi/netCal output/wwwroot/cgi
