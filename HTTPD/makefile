@@ -17,7 +17,8 @@ cgi:
 output:
 	mkdir -p output/wwwroot/cgi
 	cp httpd output
-	cp -rf lib/lib output
+	cp start.sh output
+	cp -rf lib output
 	cp -rf wwwroot/*.html output/wwwroot
 	cp -rf wwwroot/img/ output/wwwroot
 	cp -rf wwwroot/cgi/netCal output/wwwroot/cgi

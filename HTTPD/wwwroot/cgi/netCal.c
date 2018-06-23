@@ -8,6 +8,7 @@ void mycal(char* buf)
 {
     printf("<html>\n");
     printf("<body>\n");
+    printf("arg:%s\n",buf);
 
     int x;
     int y;
@@ -30,6 +31,7 @@ void mycal(char* buf)
 }
 int main()
 {
+    printf("hehe\n");
     //之后写任何的cgi，开头都要写这些代码，将数据拿到
     //这些代码是固定套路
     char buf[1024] = {0};
@@ -56,7 +58,7 @@ int main()
             buf[i] = c;
         }
     }
-    printf("%s\n",buf);
+    printf("arg:%s\n",buf);
     mycal(buf);
 
    // printf("echo Sever:%s\n",getenv("METHOD"));

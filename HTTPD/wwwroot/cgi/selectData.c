@@ -1,7 +1,8 @@
 #include<stdio.h>
 #include<mysql.h>
 
-int main()
+
+void selectData()
 {
     MYSQL *mysql_fd = mysql_init(NULL);
     //一个IP向不同的端口号发送请求，此时可以在防火墙的角度屏蔽他
@@ -30,17 +31,66 @@ int main()
     }
     printf("\n");
 
+
+    printf("<table border=\"1\">");
     for(i = 0;i < row;i++)
     {
-        //获得每行的内容
+        //获得一行的数据
         MYSQL_ROW rowdata = mysql_fetch_row(res);
         int j = 0;
+        printf("<tr>");
+        //打印每行内容
         for(;j < col;j++)
         {
-            printf("%s\t",rowdata[j]);
+            printf("<td>%s</td>",rowdata[j]);
         }
-        printf("\n");
+        printf("</tr>");
     }
+    printf("</table>");
+    //断开与数据库的连接
     mysql_close(mysql_fd);
+
+}
+
+int main()
+{
+    char data[1024];
+    if(getenv("METHOD"))
+    {
+        if(strcasecmp("GET",getenv("METHOD")) == 0)
+        {
+            strcpy(data,getenv("QUERY_STRING"));
+        }
+        else
+        {
+            int content_length = atoi(getenv("CONTENT_LENGTH"));
+            int i = 0;
+            for(;i < content_length;i++)
+            {
+                read(0,data+i,1);
+            }
+            data[i] = 0;
+        }
+    }
+    printf("arg: %s\n",data);
+
+    //name=""&sex=""&phone=""
+ 
+    //为什么用指针，不用数组
+   // char *name;
+   // char *sex;
+   // char *phone;
+   // 
+   // strtok(data,"=&");
+   // name = strtok(NULL,"=&");
+   // strtok(NULL,"=&");
+   // sex = strtok(NULL,"=&");
+   // strtok(NULL,"=&");
+   // phone = strtok(NULL,"=&");
+   // 
+    selectData();
+    //sscanf(data,"name=%s&sex=%s&phone=%s",name,sex,phone);
+
+
     return 0;
 }
