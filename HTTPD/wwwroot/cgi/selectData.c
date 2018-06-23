@@ -1,4 +1,7 @@
 #include<stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<string.h>
 #include<mysql.h>
 
 
@@ -54,7 +57,7 @@ void selectData()
 
 int main()
 {
-    char data[1024];
+    char data[1024] = {0};
     if(getenv("METHOD"))
     {
         if(strcasecmp("GET",getenv("METHOD")) == 0)
@@ -72,6 +75,7 @@ int main()
             data[i] = 0;
         }
     }
+    printf("heheh\n");
     printf("arg: %s\n",data);
 
     //name=""&sex=""&phone=""
